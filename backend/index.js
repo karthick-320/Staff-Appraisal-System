@@ -14,15 +14,80 @@ const PORT = Number(process.env.PORT);
 const MONGO_URI = process.env.MONGO_URI;
 const JWT_SECRET = process.env.JWT_SECRET;
 
-connectDB();
+async function ensureSeedUsers() {
+  console.log("Running seed...");
+  const users = [
+    {
+      username: "Staff User",
+      email: "staff@example.com",
+      password: "Password123!",
+      department: "CSE",
+      role: "staff",
+    },
+    {
+      username: "Coordinator User",
+      email: "coordinator@example.com",
+      password: "Password123!",
+      department: "CSE",
+      role: "coordinator",
+      coordinatorType: "cocurricular",
+    },
+    {
+      username: "HoD User",
+      email: "hod@example.com",
+      password: "Password123!",
+      department: "CSE",
+      role: "hod",
+    },
+  ];
+
+  for (const u of users) {
+    try {
+      const exists = await UserModel.findOne({ email: u.email });
+      if (exists) {
+        console.log("Already exists:", u.email);
+        continue;
+      }
+
+      const pw = await bcrypt.hash(u.password, 10);
+
+      const doc = await new UserModel({
+        username: u.username,
+        email: u.email,
+        password: pw,
+        department: u.department,
+        role: u.role,
+        coordinatorType: u.coordinatorType || "",
+      }).save();
+
+      console.log("Seeded user:", doc.email);
+    } catch (err) {
+      console.error("Seed error for", u.email, err);
+    }
+  }
+
+}
+// ensureSeedUsers().catch((e) => console.error("Seeding error:", e));
+connectDB()
+  .then(async () => {
+    console.log("DB connected! Now seeding...");
+    await ensureSeedUsers(); 
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  });
 
 app.use(
   cors({
-    origin: "*", 
+    origin: "*",
   })
 );
 app.use(express.json());
-
 
 // Assign Points
 const getPoints = (type, mode) => {
@@ -198,8 +263,4 @@ app.put("/update-hod-status", verifyToken, async (req, res) => {
   user.activities[activityId].hodStatus = hodStatus;
   await user.save();
   res.status(200).json({ message: "HoD status updated" });
-});
-
-app.listen(5001, () => {
-  console.log("Server running on port 5000");
 });
