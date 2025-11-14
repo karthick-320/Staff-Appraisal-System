@@ -1,4 +1,6 @@
+require("dotenv").config();
 const express = require("express");
+
 const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -6,25 +8,21 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const verifyToken = require("./middleware/auth");
 const UserModel = require("./modules/userSchema");
+const connectDB = require("./db");
 
+const PORT = Number(process.env.PORT);
+const MONGO_URI = process.env.MONGO_URI;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+connectDB();
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
+    origin: "*", 
   })
 );
 app.use(express.json());
 
-mongoose.connect("mongodb://127.0.0.1:27017/staffdetails");
 
 // Assign Points
 const getPoints = (type, mode) => {
@@ -205,5 +203,3 @@ app.put("/update-hod-status", verifyToken, async (req, res) => {
 app.listen(5001, () => {
   console.log("Server running on port 5000");
 });
- 
-
