@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
-import Sidebar from "./SideBar";
+import Sidebar from "./Sidebar";
 
 const HodDashboard = () => {
   const [pendingForHod, setPendingForHod] = useState([]);
