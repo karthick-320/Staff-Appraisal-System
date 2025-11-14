@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Dashboard.css";
-// import Sidebar from "./Sidebar";
+import Sidebar from "./Sidebar";
 
 const Dashboard = () => {
   const [submittedActivities, setSubmittedActivities] = useState([]);
@@ -106,7 +106,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      {/* <Sidebar role={role} />git add . */}
+      <Sidebar role={role} />
 
       <main className="main">
         <h1>Staff Dashboard</h1>
